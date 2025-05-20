@@ -2,6 +2,21 @@ import streamlit as st
 import numpy as np
 import joblib
 
+
+page_bg_img = '''
+<style>
+body {
+    background-image: url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1350&q=80");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+</style>
+'''
+
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
+
 # Sayfa yapılandırması
 st.set_page_config(page_title="Siber Güvenlik Tahmin", layout="centered")
 st.title("🛡️ Siber Güvenlik Saldırısı Tahmin Aracı")
