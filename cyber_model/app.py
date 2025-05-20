@@ -21,11 +21,15 @@ model_map = {
 }
 
 # Modeli yükleme
-try:
-    model = joblib.load(model_map[model_option])
-    st.write(f"Modelin beklediği özellik sayısı: {model.n_features_in_}")
-except Exception as e:
-    st.error(f"Model yüklenirken bir hata oluştu: {e}")
+model = None  # Modeli başta None olarak tanımlıyoruz.
+
+# Kullanıcı model seçtiğinde, ilgili model dosyasını yükleyelim.
+if model_option:
+    try:
+        model = joblib.load(model_map[model_option])
+        st.write(f"Modelin beklediği özellik sayısı: {model.n_features_in_}")
+    except Exception as e:
+        st.error(f"Model yüklenirken bir hata oluştu: {e}")
 
 # Kullanıcıdan alınacak özellikler
 feature1 = st.slider("Paket Boyutu", 0, 1500, 500)
@@ -51,17 +55,20 @@ features = np.array([[feature1, feature2, feature3, feature4, feature5, feature6
 
 # Tahmin
 if st.button("🔮 Tahmin Et"):
-    try:
-        prediction = model.predict(features)[0]
-        prob = model.predict_proba(features)[0]
-        
-        # Tahmin Sonuçları
-        st.success(f"📌 Model Tahmini: **{prediction}**")
-        st.info(f"📊 Güven Skoru: %{np.max(prob)*100:.2f}")
-        
-    except Exception as e:
-        st.error(f"Tahmin yapılırken bir hata oluştu: {e}")
-    
+    if model:  # Eğer model yüklendiyse
+        try:
+            prediction = model.predict(features)[0]
+            prob = model.predict_proba(features)[0]
+            
+            # Tahmin Sonuçları
+            st.success(f"📌 Model Tahmini: **{prediction}**")
+            st.info(f"📊 Güven Skoru: %{np.max(prob)*100:.2f}")
+            
+        except Exception as e:
+            st.error(f"Tahmin yapılırken bir hata oluştu: {e}")
+    else:
+        st.error("Lütfen önce bir model seçin!")
+
     st.markdown("---")
     st.caption(f"🔁 Model: {model_option}")
 
