@@ -1,7 +1,6 @@
-import os
 import streamlit as st
-import joblib
 import numpy as np
+import joblib
 
 # Streamlit ayarları
 st.set_page_config(page_title="Siber Güvenlik Tahmin", layout="centered")
@@ -14,32 +13,41 @@ model_option = st.selectbox(
     ("XGBoost", "KNN", "Logistic Regression")
 )
 
-# Model dosyasının yolu
+# Model dosyalarını yükle
 model_map = {
-    "XGBoost": "cyber_model/xgb_model.pkl",  # Eğer Streamlit bulut platformu veya başka bir ortamda çalışıyorsa tam yolu kullanın
-    "KNN": "cyber_model/knn_model.pkl",
-    "Logistic Regression": "cyber_model/lr_model.pkl"
+    "XGBoost": "xgb_model.pkl",  
+    "KNN": "knn_model.pkl",
+    "Logistic Regression": "lr_model.pkl"
 }
 
 # Modeli yükleme
 try:
-    if os.path.exists(model_map[model_option]):  # Dosyanın var olup olmadığını kontrol et
-        model = joblib.load(model_map[model_option])
-    else:
-        st.error("Model dosyası bulunamadı.")
+    model = joblib.load(model_map[model_option])
+    st.write(f"Modelin beklediği özellik sayısı: {model.n_features_in_}")
 except Exception as e:
     st.error(f"Model yüklenirken bir hata oluştu: {e}")
 
-st.subheader("📥 Girdi Verilerini Girin:")
-
-# Özellikler: Kullanıcıdan veri alıyoruz
+# Kullanıcıdan alınacak özellikler
 feature1 = st.slider("Paket Boyutu", 0, 1500, 500)
 feature2 = st.slider("Bağlantı Süresi (ms)", 0, 10000, 200)
 feature3 = st.slider("Bayt Hızı", 0.0, 1000.0, 300.0)
 feature4 = st.slider("Kaynak Port", 0, 65535, 80)
+# Diğer özellikler (5'ten 15'e kadar özellikleri de ekleyin)
+feature5 = st.slider("Özellik 5", 0, 1000, 100)
+feature6 = st.slider("Özellik 6", 0, 1000, 150)
+feature7 = st.slider("Özellik 7", 0, 1000, 200)
+feature8 = st.slider("Özellik 8", 0, 1000, 250)
+feature9 = st.slider("Özellik 9", 0, 1000, 300)
+feature10 = st.slider("Özellik 10", 0, 1000, 350)
+feature11 = st.slider("Özellik 11", 0, 1000, 400)
+feature12 = st.slider("Özellik 12", 0, 1000, 450)
+feature13 = st.slider("Özellik 13", 0, 1000, 500)
+feature14 = st.slider("Özellik 14", 0, 1000, 550)
+feature15 = st.slider("Özellik 15", 0, 1000, 600)
 
-# Özellikleri tek satır haline getir
-features = np.array([[feature1, feature2, feature3, feature4]])
+# Özellikleri tek bir satırda birleştiriyoruz
+features = np.array([[feature1, feature2, feature3, feature4, feature5, feature6, feature7, feature8, feature9, feature10,
+                      feature11, feature12, feature13, feature14, feature15]])
 
 # Tahmin
 if st.button("🔮 Tahmin Et"):
@@ -63,3 +71,4 @@ st.markdown("""
 🧠 Bu uygulama, üç farklı makine öğrenmesi modelini karşılaştırmalı olarak kullanarak canlı tahmin yapmanızı sağlar.
 💡 Not: Tahminlerin doğruluğu modelin eğitim verisine bağlıdır.
 """)
+
