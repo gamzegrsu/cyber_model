@@ -11,13 +11,12 @@ st.markdown("🎯 Gerçek zamanlı olarak farklı modellerle siber saldırı tah
 # Model seçimi
 model_option = st.selectbox(
     "🔍 Tahmin İçin Model Seç:",
-    ("XGBoost", "Random Forest", "KNN", "Logistic Regression")
+    ("XGBoost", "KNN", "Logistic Regression")
 )
 
 # Modeli yükle
 model_map = {
     "XGBoost": "xgb_model.pkl",
-    "Random Forest": "rf_model.pkl",
     "KNN": "knn_model.pkl",
     "Logistic Regression": "lr_model.pkl"
 }
