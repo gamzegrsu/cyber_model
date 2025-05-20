@@ -1,6 +1,7 @@
+import os
 import streamlit as st
-import numpy as np
 import joblib
+import numpy as np
 
 # Streamlit ayarları
 st.set_page_config(page_title="Siber Güvenlik Tahmin", layout="centered")
@@ -13,19 +14,19 @@ model_option = st.selectbox(
     ("XGBoost", "KNN", "Logistic Regression")
 )
 
-# Model dosyalarını yükle
+# Model dosyasının yolu
 model_map = {
-    "XGBoost": "xgb_model.pkl",  # . veya ./ işaretiyle bulunduğu dizini belirtin.
-    "KNN": "knn_model.pkl",
-    "Logistic Regression": "lr_model.pkl"
+    "XGBoost": "cyber_model/xgb_model.pkl",  # Eğer Streamlit bulut platformu veya başka bir ortamda çalışıyorsa tam yolu kullanın
+    "KNN": "cyber_model/knn_model.pkl",
+    "Logistic Regression": "cyber_model/lr_model.pkl"
 }
 
 # Modeli yükleme
-model = None  # Başlangıçta model None olarak tanımlanmalı
-
 try:
-    model = joblib.load(model_map[model_option])
-    st.success(f"{model_option} modeli başarıyla yüklendi.")
+    if os.path.exists(model_map[model_option]):  # Dosyanın var olup olmadığını kontrol et
+        model = joblib.load(model_map[model_option])
+    else:
+        st.error("Model dosyası bulunamadı.")
 except Exception as e:
     st.error(f"Model yüklenirken bir hata oluştu: {e}")
 
@@ -40,27 +41,21 @@ feature4 = st.slider("Kaynak Port", 0, 65535, 80)
 # Özellikleri tek satır haline getir
 features = np.array([[feature1, feature2, feature3, feature4]])
 
-# Modelin yüklendiğinden emin olduktan sonra tahmin yapmaya çalışıyoruz
-if model is not None:
-    if st.button("🔮 Tahmin Et"):
-        try:
-            prediction = model.predict(features)[0]
-            if hasattr(model, 'predict_proba'):
-                prob = model.predict_proba(features)[0]
-                st.info(f"📊 Güven Skoru: %{np.max(prob)*100:.2f}")
-            else:
-                prob = None
-            
-            # Tahmin Sonuçları
-            st.success(f"📌 Model Tahmini: **{prediction}**")
-            
-        except Exception as e:
-            st.error(f"Tahmin yapılırken bir hata oluştu: {e}")
-else:
-    st.error("Model yüklenemediği için tahmin yapılamaz.")
-
-st.markdown("---")
-st.caption(f"🔁 Model: {model_option}")
+# Tahmin
+if st.button("🔮 Tahmin Et"):
+    try:
+        prediction = model.predict(features)[0]
+        prob = model.predict_proba(features)[0]
+        
+        # Tahmin Sonuçları
+        st.success(f"📌 Model Tahmini: **{prediction}**")
+        st.info(f"📊 Güven Skoru: %{np.max(prob)*100:.2f}")
+        
+    except Exception as e:
+        st.error(f"Tahmin yapılırken bir hata oluştu: {e}")
+    
+    st.markdown("---")
+    st.caption(f"🔁 Model: {model_option}")
 
 # Footer
 st.markdown("""
