@@ -15,9 +15,9 @@ model_option = st.selectbox(
 
 # Model dosyalarını yükle
 model_map = {
-    "XGBoost": "./xgb_model.pkl",  # . veya ./ işaretiyle bulunduğu dizini belirtin.
-    "KNN": "./knn_model.pkl",
-    "Logistic Regression": "./lr_model.pkl"
+    "XGBoost": "xgb_model.pkl",  # . veya ./ işaretiyle bulunduğu dizini belirtin.
+    "KNN": "knn_model.pkl",
+    "Logistic Regression": "lr_model.pkl"
 }
 
 # Modeli yükleme
