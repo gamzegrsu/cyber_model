@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import numpy as np
 import joblib
 
@@ -13,22 +14,22 @@ model_option = st.selectbox(
     ("XGBoost", "KNN", "Logistic Regression")
 )
 
-# Model dosyalarını yükle
+# Modeli yükle
 model_map = {
-    "XGBoost": "xgb_model.pkl",  # . veya ./ işaretiyle bulunduğu dizini belirtin.
-    "KNN": "knn_model.pkl",
-    "Logistic Regression": "lr_model.pkl"
+    "XGBoost": "./xgb_model.pkl",
+    "KNN": "./knn_model.pkl",
+    "Logistic Regression": "./lr_model.pkl"
 }
 
-# Modeli yükleme
+# Modeli yükleme işlemi
 try:
     model = joblib.load(model_map[model_option])
-except Exception as e:
-    st.error(f"Model yüklenirken bir hata oluştu: {e}")
+except FileNotFoundError as e:
+    st.error(f"Model dosyası bulunamadı: {e}")
 
 st.subheader("📥 Girdi Verilerini Girin:")
 
-# Özellikler: Kullanıcıdan veri alıyoruz
+# Örnek özellikler (senin veri setine göre özelleştir!)
 feature1 = st.slider("Paket Boyutu", 0, 1500, 500)
 feature2 = st.slider("Bağlantı Süresi (ms)", 0, 10000, 200)
 feature3 = st.slider("Bayt Hızı", 0.0, 1000.0, 300.0)
@@ -39,23 +40,22 @@ features = np.array([[feature1, feature2, feature3, feature4]])
 
 # Tahmin
 if st.button("🔮 Tahmin Et"):
-    try:
+    if model:  # Eğer model yüklendiyse
         prediction = model.predict(features)[0]
         prob = model.predict_proba(features)[0]
-        
-        # Tahmin Sonuçları
+
         st.success(f"📌 Model Tahmini: **{prediction}**")
         st.info(f"📊 Güven Skoru: %{np.max(prob)*100:.2f}")
-        
-    except Exception as e:
-        st.error(f"Tahmin yapılırken bir hata oluştu: {e}")
-    
+
+    else:
+        st.error("Model yüklenemedi. Lütfen tekrar deneyin.")
+
     st.markdown("---")
-    st.caption(f"🔁 Model: {model_option}")
+    st.caption("🔁 Model: {}".format(model_option))
 
 # Footer
 st.markdown("""
 ---
-🧠 Bu uygulama, üç farklı makine öğrenmesi modelini karşılaştırmalı olarak kullanarak canlı tahmin yapmanızı sağlar.
+🧠 Bu uygulama, dört farklı makine öğrenmesi modelini karşılaştırmalı olarak kullanarak canlı tahmin yapmanızı sağlar.
 💡 Not: Tahminlerin doğruluğu modelin eğitim verisine bağlıdır.
 """)
