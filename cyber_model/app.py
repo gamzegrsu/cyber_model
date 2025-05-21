@@ -59,32 +59,32 @@ st.markdown("🎯 Gerçek zamanlı olarak farklı modellerle siber saldırı tah
 with st.expander("ℹ️ Bu Uygulama Ne Yapar?"):
     st.write("""
     Bu araç, ağ trafiği verilerine göre bir bağlantının siber saldırı olup olmadığını **makine öğrenmesi modelleriyle tahmin eder**.
-
+    
     **Nasıl Kullanılır?**
-    1. Model seçin (KNN önerilir).
+    1. Model seçin.
     2. Aşağıdaki değerleri ayarlayın.
     3. 'Tahmin Et' butonuna tıklayın.
-
+    
     Sonuç olarak sistem, trafiğin normal mi yoksa saldırı içerikli mi olduğunu gösterir.
     """)
 
 with st.expander("🧾 Özellik Detayları"):
     st.write("""
-    - **Paket Boyutu**: Gönderilen veri paketlerinin büyüklüğü. (Byte cinsinden)
-    - **Bağlantı Süresi**: İki nokta arasındaki bağlantının süresi. (Milisaniye)
+    - **Paket Boyutu**: Gönderilen veri paketlerinin büyüklüğü. (Byte)
+    - **Bağlantı Süresi**: Bağlantının süresi. (ms)
     - **Bayt Hızı**: Birim zamanda aktarılan veri miktarı.
-    - **Kaynak Port**: Paketin gönderildiği port numarası.
-    - **Ortalama Paketler Arası Süre**: Paketlerin ortalama interarrival zamanı (ms).
-    - **Protokol Tipi**: TCP=1, UDP=2, ICMP=3 gibi.
-    - **Hedef Port**: Paketin hedef port numarası.
-    - **TCP SYN Flag Sayısı**: TCP SYN bayrağı sayısı.
-    - **TCP ACK Flag Sayısı**: TCP ACK bayrağı sayısı.
-    - **Kaynak IP Blacklist Durumu**: 0 (değil) veya 1 (blacklistte).
-    - **Aktif Bağlantı Sayısı**: Aynı IP ile aktif bağlantı sayısı.
-    - **Ortalama Paket Boyutu**: Byte cinsinden.
+    - **Kaynak Port**: Paketin gönderildiği port.
+    - **Ortalama Paketler Arası Süre**: ms
+    - **Protokol Tipi**: TCP=1, UDP=2, ICMP=3
+    - **Hedef Port**: Paketin hedef portu.
+    - **TCP SYN Flag Sayısı**
+    - **TCP ACK Flag Sayısı**
+    - **Kaynak IP Blacklist Durumu**: 0 (değil) / 1 (blacklistte)
+    - **Aktif Bağlantı Sayısı**
+    - **Ortalama Paket Boyutu**
     - **Uygulama Tipi**: HTTP=1, FTP=2 vb.
-    - **TCP RST Flag Sayısı**: TCP RST bayrağı sayısı.
-    - **Yeniden Deneme Sayısı**: Paket yeniden deneme sayısı.
+    - **TCP RST Flag Sayısı**
+    - **Yeniden Deneme Sayısı**
     """)
 
 model_option = st.selectbox(
@@ -106,32 +106,31 @@ except Exception as e:
 
 st.subheader("📥 Girdi Verilerini Girin:")
 
-# Temel 4 özellik
-feature1 = st.slider("Paket Boyutu (Byte)", 0, 1500, 500)
-feature2 = st.slider("Bağlantı Süresi (ms)", 0, 10000, 200)
-feature3 = st.slider("Bayt Hızı", 0.0, 1000.0, 300.0)
-feature4 = st.slider("Kaynak Port", 0, 65535, 80)
+col1, col2 = st.columns(2)
 
-# Gelişmiş özellikler
-with st.expander("🔧 Gelişmiş Özellikleri Ayarla"):
-    feature5 = st.slider("Ortalama Paketler Arası Süre (ms)", 0, 1000, 15)
+with col1:
+    feature1 = st.slider("Paket Boyutu (Byte)", 0, 1500, 500)
+    feature2 = st.slider("Bağlantı Süresi (ms)", 0, 10000, 200)
+    feature3 = st.slider("Bayt Hızı", 0.0, 1000.0, 300.0)
+    feature4 = st.slider("Kaynak Port", 0, 65535, 80)
+    feature5 = st.slider("Ortalama Paketler Arası Süre", 0, 1000, 15)
     feature6 = st.selectbox("Protokol Tipi", [1, 2, 3], format_func=lambda x: {1: "TCP", 2: "UDP", 3: "ICMP"}[x])
     feature7 = st.slider("Hedef Port", 0, 65535, 80)
     feature8 = st.slider("TCP SYN Flag Sayısı", 0, 10, 1)
+
+with col2:
     feature9 = st.slider("TCP ACK Flag Sayısı", 0, 10, 1)
-    feature10 = st.selectbox("Kaynak IP Blacklist Durumu", [0, 1])
+    feature10 = st.selectbox("Kaynak IP Blacklist Durumu", [0, 1], format_func=lambda x: "Blacklistte" if x == 1 else "Normal")
     feature11 = st.slider("Aktif Bağlantı Sayısı", 0, 100, 5)
-    feature12 = st.slider("Ortalama Paket Boyutu (Byte)", 0, 1500, 500)
+    feature12 = st.slider("Ortalama Paket Boyutu", 0, 1500, 500)
     feature13 = st.selectbox("Uygulama Tipi", [1, 2], format_func=lambda x: {1: "HTTP", 2: "FTP"}[x])
     feature14 = st.slider("TCP RST Flag Sayısı", 0, 10, 0)
     feature15 = st.slider("Yeniden Deneme Sayısı", 0, 10, 0)
 
-# Tüm özellikleri birleştir
+# Özellikleri birleştir
 features = np.array([
-    feature1, feature2, feature3, feature4,
-    feature5, feature6, feature7, feature8, feature9,
-    feature10, feature11, feature12, feature13,
-    feature14, feature15
+    feature1, feature2, feature3, feature4, feature5, feature6, feature7, feature8,
+    feature9, feature10, feature11, feature12, feature13, feature14, feature15
 ]).reshape(1, -1)
 
 attack_type_explanation = {
@@ -163,4 +162,3 @@ st.markdown("""
 🧠 Bu uygulama, üç farklı makine öğrenmesi modelini karşılaştırmalı olarak kullanarak canlı tahmin yapmanızı sağlar.  
 💡 Not: Tahminlerin doğruluğu modelin eğitim verisine bağlıdır.
 """)
-
