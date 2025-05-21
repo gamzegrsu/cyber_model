@@ -2,10 +2,8 @@ import streamlit as st
 import numpy as np
 import joblib
 
-# Sayfa ayarları
 st.set_page_config(page_title="Siber Güvenlik Tahmin", layout="centered")
 
-# Arka plan ve stil
 st.markdown(
     """
     <style>
@@ -17,6 +15,7 @@ st.markdown(
         background-position: center;
         color: black;
     }
+
     .stApp {
         background-color: rgba(255, 255, 255, 0.5);
         padding: 2rem;
@@ -25,9 +24,11 @@ st.markdown(
         color: black;
         border: 3px solid black;
     }
+
     h1, h2, h3, h4, h5, h6, label, button, .st-bx {
         color: black !important;
     }
+
     div.stButton > button {
         background-color: white;
         color: red;
@@ -43,6 +44,7 @@ st.markdown(
         border-color: darkred;
         cursor: pointer;
     }
+
     .stAlert > div[role="alert"] {
         border-left: 5px solid black !important;
     }
@@ -52,32 +54,49 @@ st.markdown(
 )
 
 st.title("🛡️ Siber Güvenlik Saldırısı Tahmin Aracı")
-st.markdown("🎯 Gerçek zamanlı olarak KNN veya XGBoost modeliyle siber saldırı tahmini yapın.")
+st.markdown("🎯 Gerçek zamanlı olarak KNN modeliyle siber saldırı tahmini yapın.")
 
 with st.expander("ℹ️ Bu Uygulama Ne Yapar?"):
     st.write("""
-    Bu araç, ağ trafiği verilerine göre bir bağlantının siber saldırı olup olmadığını **seçtiğiniz makine öğrenmesi modeliyle** tahmin eder.
+    Bu araç, ağ trafiği verilerine göre bir bağlantının siber saldırı olup olmadığını **KNN modeliyle tahmin eder**.
 
     **Nasıl Kullanılır?**
     1. Aşağıdaki değerleri ayarlayın.
-    2. Kullanmak istediğiniz modeli seçin.
-    3. 'Tahmin Et' butonuna tıklayın.
+    2. 'Tahmin Et' butonuna tıklayın.
+
+    Sonuç olarak sistem, trafiğin normal mi yoksa saldırı içerikli mi olduğunu gösterir.
     """)
 
 with st.expander("🧾 Özellik Detayları"):
     st.write("""
-    - **Paket Boyutu**, **Bağlantı Süresi**, **Bayt Hızı**, **Portlar**, TCP bayrakları vb. toplam 15 özellik kullanılır.
+    - **Paket Boyutu**: Gönderilen veri paketlerinin büyüklüğü. (Byte)
+    - **Bağlantı Süresi**: Bağlantının süresi. (ms)
+    - **Bayt Hızı**: Birim zamanda aktarılan veri miktarı.
+    - **Kaynak Port**: Paketin gönderildiği port.
+    - **Ortalama Paketler Arası Süre**: ms
+    - **Protokol Tipi**: TCP=1, UDP=2, ICMP=3
+    - **Hedef Port**: Paketin hedef portu.
+    - **TCP SYN Flag Sayısı**
+    - **TCP ACK Flag Sayısı**
+    - **Kaynak IP Blacklist Durumu**: 0 (değil) / 1 (blacklistte)
+    - **Aktif Bağlantı Sayısı**
+    - **Ortalama Paket Boyutu**
+    - **Uygulama Tipi**: HTTP=1, FTP=2 vb.
+    - **TCP RST Flag Sayısı**
+    - **Yeniden Deneme Sayısı**
     """)
 
-# MODELLERİ YÜKLE
+# 🔁 MODELİ YÜKLE
 try:
-    knn_model = joblib.load("knn_model.pkl")
-    xgb_model = joblib.load("xgboost_model.pkl")
+    model = joblib.load("cyber_model/knn_model.pkl")  # ← klasörün içindeyse
+except FileNotFoundError:
+    st.error("❌ Model dosyası bulunamadı! Lütfen 'cyber_model/knn_model.pkl' dosyasının mevcut olduğundan ve doğru yerde bulunduğundan emin olun.")
+    st.stop()
 except Exception as e:
-    st.error(f"Model(ler) yüklenemedi: {e}")
+    st.error(f"❌ Model yüklenirken bir hata oluştu: {e}")
     st.stop()
 
-# Kullanıcıdan özellik girişi
+# 📥 GİRDİ ALANI
 st.subheader("📥 Girdi Verilerini Girin:")
 
 col1, col2 = st.columns(2)
@@ -94,22 +113,18 @@ with col1:
 
 with col2:
     feature9 = st.slider("TCP ACK Flag Sayısı", 0, 10, 1)
-    feature10 = st.selectbox("Blacklist Durumu", [0, 1], format_func=lambda x: "Blacklistte" if x == 1 else "Normal")
+    feature10 = st.selectbox("Kaynak IP Blacklist Durumu", [0, 1], format_func=lambda x: "Blacklistte" if x == 1 else "Normal")
     feature11 = st.slider("Aktif Bağlantı Sayısı", 0, 100, 5)
     feature12 = st.slider("Ortalama Paket Boyutu", 0, 1500, 500)
     feature13 = st.selectbox("Uygulama Tipi", [1, 2], format_func=lambda x: {1: "HTTP", 2: "FTP"}[x])
     feature14 = st.slider("TCP RST Flag Sayısı", 0, 10, 0)
     feature15 = st.slider("Yeniden Deneme Sayısı", 0, 10, 0)
 
-features = np.array([
-    feature1, feature2, feature3, feature4, feature5, feature6, feature7, feature8,
-    feature9, feature10, feature11, feature12, feature13, feature14, feature15
-]).reshape(1, -1)
+features = np.array([[
+    feature1, feature2, feature3, feature4, feature5, feature6, feature7,
+    feature8, feature9, feature10, feature11, feature12, feature13, feature14, feature15
+]])
 
-# Model seçimi
-model_choice = st.selectbox("🧠 Kullanmak İstediğiniz Modeli Seçin:", ["KNN", "XGBoost"])
-
-# Saldırı açıklamaları
 attack_type_explanation = {
     0: "Normal trafik (saldırı yok)",
     1: "DoS saldırısı",
@@ -119,29 +134,19 @@ attack_type_explanation = {
     5: "Botnet trafiği"
 }
 
-# Tahmin
 if st.button("🔮 Tahmin Et"):
     try:
-        if model_choice == "KNN":
-            prediction = knn_model.predict(features)[0]
-            st.warning("⚠️ KNN modeli güven skoru (olasılık) sağlamaz.")
-        else:
-            prediction = xgb_model.predict(features)[0]
-            probability = xgb_model.predict_proba(features)[0]
-            st.info(f"🔎 Güven Skoru (XGBoost): {max(probability)*100:.2f}%")
-
-        prediction_text = attack_type_explanation.get(prediction, "Bilinmeyen saldırı türü")
-        st.success(f"📌 Model Tahmini: **{prediction_text}** (Kod: {prediction})")
-
+        prediction = model.predict(features)[0]
+        result = attack_type_explanation.get(prediction, "Bilinmeyen saldırı türü")
+        st.success(f"📌 Model Tahmini: **{result}** (Kod: {prediction})")
+        st.warning("⚠️ KNN modeli güven skoru (olasılık) sağlamaz.")
     except Exception as e:
-        st.error(f"Tahmin sırasında hata oluştu: {e}")
+        st.error(f"Tahmin yapılırken bir hata oluştu: {e}")
 
-# Alt bilgi
 st.markdown("""
 ---
-🧠 Bu uygulama KNN ve XGBoost modelleriyle canlı tahmin yapar.  
-📊 XGBoost modeli güven skoru verir, KNN vermez.  
-💡 Not: Tahminlerin doğruluğu eğitim verisine ve özellik mühendisliğine bağlıdır.
+🧠 Bu uygulama, **KNN makine öğrenmesi modeliyle** canlı tahmin yapmanızı sağlar.  
+💡 Not: Tahminlerin doğruluğu modelin eğitim verisine bağlıdır.
 """)
 
 
