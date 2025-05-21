@@ -29,7 +29,6 @@ st.markdown(
         color: black !important;
     }
 
-    /* Tahmin et butonu stili */
     div.stButton > button {
         background-color: white;
         color: red;
@@ -46,11 +45,9 @@ st.markdown(
         cursor: pointer;
     }
 
-    /* Tahmin sonucu kutusundaki çizgi rengini siyah yap */
     .stAlert > div[role="alert"] {
         border-left: 5px solid black !important;
     }
-
     </style>
     """,
     unsafe_allow_html=True
@@ -62,12 +59,12 @@ st.markdown("🎯 Gerçek zamanlı olarak farklı modellerle siber saldırı tah
 with st.expander("ℹ️ Bu Uygulama Ne Yapar?"):
     st.write("""
     Bu araç, ağ trafiği verilerine göre bir bağlantının siber saldırı olup olmadığını **makine öğrenmesi modelleriyle tahmin eder**.
-    
+
     **Nasıl Kullanılır?**
     1. Model seçin (KNN önerilir).
     2. Aşağıdaki değerleri ayarlayın.
     3. 'Tahmin Et' butonuna tıklayın.
-    
+
     Sonuç olarak sistem, trafiğin normal mi yoksa saldırı içerikli mi olduğunu gösterir.
     """)
 
@@ -109,28 +106,33 @@ except Exception as e:
 
 st.subheader("📥 Girdi Verilerini Girin:")
 
+# Temel 4 özellik
 feature1 = st.slider("Paket Boyutu (Byte)", 0, 1500, 500)
 feature2 = st.slider("Bağlantı Süresi (ms)", 0, 10000, 200)
 feature3 = st.slider("Bayt Hızı", 0.0, 1000.0, 300.0)
 feature4 = st.slider("Kaynak Port", 0, 65535, 80)
 
-# Gerçekçi ve anlamlı ek özellikler (11 adet)
-extra_features = np.array([
-    15,   # Ortalama paketler arası süre (ms)
-    1,    # Protokol tipi (TCP=1)
-    80,   # Hedef port
-    1,    # TCP SYN flag sayısı
-    1,    # TCP ACK flag sayısı
-    0,    # Kaynak IP blacklist durumu
-    5,    # Aktif bağlantı sayısı
-    500,  # Ortalama paket boyutu (byte)
-    1,    # Uygulama tipi (HTTP)
-    0,    # TCP RST flag sayısı
-    0     # Yeniden deneme sayısı
-])
+# Gelişmiş özellikler
+with st.expander("🔧 Gelişmiş Özellikleri Ayarla"):
+    feature5 = st.slider("Ortalama Paketler Arası Süre (ms)", 0, 1000, 15)
+    feature6 = st.selectbox("Protokol Tipi", [1, 2, 3], format_func=lambda x: {1: "TCP", 2: "UDP", 3: "ICMP"}[x])
+    feature7 = st.slider("Hedef Port", 0, 65535, 80)
+    feature8 = st.slider("TCP SYN Flag Sayısı", 0, 10, 1)
+    feature9 = st.slider("TCP ACK Flag Sayısı", 0, 10, 1)
+    feature10 = st.selectbox("Kaynak IP Blacklist Durumu", [0, 1])
+    feature11 = st.slider("Aktif Bağlantı Sayısı", 0, 100, 5)
+    feature12 = st.slider("Ortalama Paket Boyutu (Byte)", 0, 1500, 500)
+    feature13 = st.selectbox("Uygulama Tipi", [1, 2], format_func=lambda x: {1: "HTTP", 2: "FTP"}[x])
+    feature14 = st.slider("TCP RST Flag Sayısı", 0, 10, 0)
+    feature15 = st.slider("Yeniden Deneme Sayısı", 0, 10, 0)
 
-features = np.concatenate((np.array([feature1, feature2, feature3, feature4]), extra_features))
-features = features.reshape(1, -1)
+# Tüm özellikleri birleştir
+features = np.array([
+    feature1, feature2, feature3, feature4,
+    feature5, feature6, feature7, feature8, feature9,
+    feature10, feature11, feature12, feature13,
+    feature14, feature15
+]).reshape(1, -1)
 
 attack_type_explanation = {
     0: "Normal trafik (saldırı yok)",
@@ -161,3 +163,4 @@ st.markdown("""
 🧠 Bu uygulama, üç farklı makine öğrenmesi modelini karşılaştırmalı olarak kullanarak canlı tahmin yapmanızı sağlar.  
 💡 Not: Tahminlerin doğruluğu modelin eğitim verisine bağlıdır.
 """)
+
