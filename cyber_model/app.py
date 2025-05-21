@@ -22,12 +22,35 @@ st.markdown(
         border-radius: 10px;
         box-shadow: 0 0 20px rgba(0,0,0,0.3);
         color: black;
-        border: 3px solid black;  /* İşte siyah çerçeve burası */
+        border: 3px solid black;
     }
 
     h1, h2, h3, h4, h5, h6, label, button, .st-bx {
         color: black !important;
     }
+
+    /* Tahmin et butonu stili */
+    div.stButton > button {
+        background-color: white;
+        color: red;
+        font-weight: bold;
+        border: 2px solid red;
+        border-radius: 6px;
+        padding: 8px 20px;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    div.stButton > button:hover {
+        background-color: #ffcccc;
+        color: darkred;
+        border-color: darkred;
+        cursor: pointer;
+    }
+
+    /* Tahmin sonucu kutusundaki çizgi rengini siyah yap */
+    .stAlert > div[role="alert"] {
+        border-left: 5px solid black !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True
