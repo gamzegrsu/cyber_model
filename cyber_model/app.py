@@ -139,7 +139,6 @@ if st.button("🔮 Tahmin Et"):
         prediction = model.predict(features)[0]
         result = attack_type_explanation.get(prediction, "Bilinmeyen saldırı türü")
         st.success(f"📌 Model Tahmini: **{result}** (Kod: {prediction})")
-        st.warning("⚠️ KNN modeli güven skoru (olasılık) sağlamaz.")
     except Exception as e:
         st.error(f"Tahmin yapılırken bir hata oluştu: {e}")
 
