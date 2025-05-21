@@ -88,7 +88,7 @@ with st.expander("🧾 Özellik Detayları"):
 
 # Modeli yükle
 try:
-    model = joblib.load("./cyber_model/xgb_model.pkl")
+    model = joblib.load("./cyber_model/xgboost_model.pkl")
 except Exception as e:
     st.error(f"Model yüklenirken bir hata oluştu: {e}")
     st.stop()
