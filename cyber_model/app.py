@@ -2,10 +2,10 @@ import streamlit as st
 import numpy as np
 import joblib
 
-# Sayfa yapılandırması (EN ÖNEMLİ - ilk satırda olmalı!)
+# Sayfa yapılandırması (EN ÖNEMLİ: set_page_config en üstte olmalı)
 st.set_page_config(page_title="Siber Güvenlik Tahmin", layout="centered")
 
-# Arka plan için CSS (GIF + şeffaf beyaz kutu)
+# Arka plan ve yazı rengi için CSS
 st.markdown(
     """
     <style>
@@ -15,13 +15,19 @@ st.markdown(
         background-attachment: fixed;
         background-repeat: no-repeat;
         background-position: center;
+        color: black;  /* Sayfa genel yazı rengi siyah */
     }
 
     .stApp {
-        background-color: rgba(255, 255, 255, 0.5);  /* %50 opaklık */
+        background-color: rgba(255, 255, 255, 0.5);
         padding: 2rem;
         border-radius: 10px;
         box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        color: black; /* Kutudaki yazılar da siyah */
+    }
+
+    h1, h2, h3, h4, h5, h6, label, button, .st-bx {
+        color: black !important;
     }
     </style>
     """,
@@ -73,30 +79,33 @@ except Exception as e:
     st.error(f"Model yüklenirken bir hata oluştu: {e}")
     st.stop()
 
-# Özellik girişleri
 st.subheader("📥 Girdi Verilerini Girin:")
 
-# Örnek verilerle doldurmak için buton
-if st.button("🎲 Örnek Veri ile Doldur"):
-    st.session_state["feature1"] = 800
-    st.session_state["feature2"] = 3500
-    st.session_state["feature3"] = 450.0
-    st.session_state["feature4"] = 443
+# Sliderlar ile 4 ana özellik alınıyor
+feature1 = st.slider("Paket Boyutu", 0, 1500, 500)
+feature2 = st.slider("Bağlantı Süresi (ms)", 0, 10000, 200)
+feature3 = st.slider("Bayt Hızı", 0.0, 1000.0, 300.0)
+feature4 = st.slider("Kaynak Port", 0, 65535, 80)
 
-# Slider girdileri (varsayılan veya örnek)
-feature1 = st.slider("Paket Boyutu", 0, 1500, st.session_state.get("feature1", 500))
-feature2 = st.slider("Bağlantı Süresi (ms)", 0, 10000, st.session_state.get("feature2", 200))
-feature3 = st.slider("Bayt Hızı", 0.0, 1000.0, st.session_state.get("feature3", 300.0))
-feature4 = st.slider("Kaynak Port", 0, 65535, st.session_state.get("feature4", 80))
+# Kalan 11 özellik (örnek ortalama değerler ile dolduruluyor)
+# Burada gerçekçi varsayılan değerler kullanılmıştır.
+extra_features = np.array([
+    50,    # feature5
+    0.5,   # feature6
+    100,   # feature7
+    0,     # feature8
+    0,     # feature9
+    0.1,   # feature10
+    20,    # feature11
+    1,     # feature12
+    0,     # feature13
+    0,     # feature14
+    0.05   # feature15
+])
 
-# Ortalama gerçekçi değerlerle kalan 11 özellik
-avg_features = np.array([0.1, 0.05, 0.02, 0.03, 0.01, 0.07, 0.06, 0.04, 0.05, 0.02, 0.01])
-
-# Tüm özellikler birleşiyor
-features = np.concatenate((
-    np.array([feature1, feature2, feature3, feature4], dtype=float),
-    avg_features
-)).reshape(1, -1)
+# Tüm özellikleri birleştir
+features = np.concatenate((np.array([feature1, feature2, feature3, feature4]), extra_features))
+features = features.reshape(1, -1)
 
 # Saldırı türü açıklamaları
 attack_type_explanation = {
@@ -108,7 +117,6 @@ attack_type_explanation = {
     5: "Botnet trafiği"
 }
 
-# Tahmin butonu
 if st.button("🔮 Tahmin Et"):
     try:
         prediction = model.predict(features)[0]
@@ -124,10 +132,10 @@ if st.button("🔮 Tahmin Et"):
     except Exception as e:
         st.error(f"Tahmin yapılırken bir hata oluştu: {e}")
 
-# Footer
 st.markdown("""
 ---
 🧠 Bu uygulama, üç farklı makine öğrenmesi modelini karşılaştırmalı olarak kullanarak canlı tahmin yapmanızı sağlar.  
 💡 Not: Tahminlerin doğruluğu modelin eğitim verisine bağlıdır.
 """)
+
 
