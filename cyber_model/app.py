@@ -86,15 +86,25 @@ with st.expander("🧾 Özellik Detayları"):
     - **Yeniden Deneme Sayısı**
     """)
 
-# 🔁 MODELİ YÜKLE
-try:
-    model = joblib.load("cyber_model/knn_model.pkl")  # ← klasörün içindeyse
-except FileNotFoundError:
-    st.error("❌ Model dosyası bulunamadı! Lütfen 'cyber_model/knn_model.pkl' dosyasının mevcut olduğundan ve doğru yerde bulunduğundan emin olun.")
-    st.stop()
-except Exception as e:
-    st.error(f"❌ Model yüklenirken bir hata oluştu: {e}")
-    st.stop()
+# 🔁 MODELLERİ YÜKLE VE SEÇİM YAP
+models = {}
+model_names = {
+    "KNN Modeli": "cyber_model/knn_model.pkl",
+    "XGBoost Modeli": "cyber_model/xgb_model.pkl"
+}
+
+for name, path in model_names.items():
+    try:
+        models[name] = joblib.load(path)
+    except FileNotFoundError:
+        st.error(f"❌ {name} dosyası bulunamadı! Lütfen '{path}' dosyasının mevcut olduğundan emin olun.")
+        st.stop()
+    except Exception as e:
+        st.error(f"❌ {name} yüklenirken hata oluştu: {e}")
+        st.stop()
+
+selected_model_name = st.selectbox("Model Seçin", list(models.keys()))
+model = models[selected_model_name]
 
 # 📥 GİRDİ ALANI
 st.subheader("📥 Girdi Verilerini Girin:")
@@ -120,10 +130,8 @@ with col2:
     feature14 = st.slider("TCP RST Flag Sayısı", 0, 10, 0)
     feature15 = st.slider("Yeniden Deneme Sayısı", 0, 10, 0)
 
-features = np.array([[
-    feature1, feature2, feature3, feature4, feature5, feature6, feature7,
-    feature8, feature9, feature10, feature11, feature12, feature13, feature14, feature15
-]])
+features = np.array([[feature1, feature2, feature3, feature4, feature5, feature6, feature7,
+                      feature8, feature9, feature10, feature11, feature12, feature13, feature14, feature15]])
 
 attack_type_explanation = {
     0: "Normal trafik (saldırı yok)",
