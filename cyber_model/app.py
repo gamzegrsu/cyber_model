@@ -64,7 +64,7 @@ with st.expander("ℹ️ Bu Uygulama Ne Yapar?"):
     Bu araç, ağ trafiği verilerine göre bir bağlantının siber saldırı olup olmadığını **makine öğrenmesi modelleriyle tahmin eder**.
     
     **Nasıl Kullanılır?**
-    1. Model seçin (XGBoost önerilir).
+    1. Model seçin (KNN önerilir).
     2. Aşağıdaki değerleri ayarlayın.
     3. 'Tahmin Et' butonuna tıklayın.
     
