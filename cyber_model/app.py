@@ -145,7 +145,6 @@ if st.button("🔮 Tahmin Et"):
 
 st.markdown("""
 ---
-🧠 Bu uygulama, **KNN makine öğrenmesi modeliyle** canlı tahmin yapmanızı sağlar.  
 💡 Not: Tahminlerin doğruluğu modelin eğitim verisine bağlıdır.
 """)
 
