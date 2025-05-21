@@ -88,7 +88,7 @@ with st.expander("🧾 Özellik Detayları"):
 
 # Sadece KNN modelini yükle
 try:
-    model = joblib.load("./cyber_model/knn_model.pkl")
+    model = joblib.load("knn_model.pkl")
 except Exception as e:
     st.error(f"Model yüklenirken bir hata oluştu: {e}")
     st.stop()
