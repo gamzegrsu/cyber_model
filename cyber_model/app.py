@@ -59,11 +59,11 @@ st.markdown("🎯 Gerçek zamanlı olarak KNN modeliyle siber saldırı tahmini 
 with st.expander("ℹ️ Bu Uygulama Ne Yapar?"):
     st.write("""
     Bu araç, ağ trafiği verilerine göre bir bağlantının siber saldırı olup olmadığını **KNN modeliyle tahmin eder**.
-    
+
     **Nasıl Kullanılır?**
     1. Aşağıdaki değerleri ayarlayın.
     2. 'Tahmin Et' butonuna tıklayın.
-    
+
     Sonuç olarak sistem, trafiğin normal mi yoksa saldırı içerikli mi olduğunu gösterir.
     """)
 
@@ -86,13 +86,17 @@ with st.expander("🧾 Özellik Detayları"):
     - **Yeniden Deneme Sayısı**
     """)
 
-# Sadece KNN modelini yükle
+# 🔁 MODELİ YÜKLE
 try:
-    model = joblib.load("knn_model.pkl")
+    model = joblib.load("cyber_model/knn_model.pkl")  # ← klasörün içindeyse
+except FileNotFoundError:
+    st.error("❌ Model dosyası bulunamadı! Lütfen 'cyber_model/knn_model.pkl' dosyasının mevcut olduğundan ve doğru yerde bulunduğundan emin olun.")
+    st.stop()
 except Exception as e:
-    st.error(f"Model yüklenirken bir hata oluştu: {e}")
+    st.error(f"❌ Model yüklenirken bir hata oluştu: {e}")
     st.stop()
 
+# 📥 GİRDİ ALANI
 st.subheader("📥 Girdi Verilerini Girin:")
 
 col1, col2 = st.columns(2)
@@ -116,10 +120,10 @@ with col2:
     feature14 = st.slider("TCP RST Flag Sayısı", 0, 10, 0)
     feature15 = st.slider("Yeniden Deneme Sayısı", 0, 10, 0)
 
-features = np.array([
-    feature1, feature2, feature3, feature4, feature5, feature6, feature7, feature8,
-    feature9, feature10, feature11, feature12, feature13, feature14, feature15
-]).reshape(1, -1)
+features = np.array([[
+    feature1, feature2, feature3, feature4, feature5, feature6, feature7,
+    feature8, feature9, feature10, feature11, feature12, feature13, feature14, feature15
+]])
 
 attack_type_explanation = {
     0: "Normal trafik (saldırı yok)",
@@ -133,8 +137,8 @@ attack_type_explanation = {
 if st.button("🔮 Tahmin Et"):
     try:
         prediction = model.predict(features)[0]
-        prediction_text = attack_type_explanation.get(prediction, "Bilinmeyen saldırı türü")
-        st.success(f"📌 Model Tahmini: **{prediction_text}** (Kod: {prediction})")
+        result = attack_type_explanation.get(prediction, "Bilinmeyen saldırı türü")
+        st.success(f"📌 Model Tahmini: **{result}** (Kod: {prediction})")
         st.warning("⚠️ KNN modeli güven skoru (olasılık) sağlamaz.")
     except Exception as e:
         st.error(f"Tahmin yapılırken bir hata oluştu: {e}")
