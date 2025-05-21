@@ -54,7 +54,7 @@ st.markdown(
 )
 
 st.title("🛡️ Siber Güvenlik Saldırısı Tahmin Aracı")
-st.markdown("🎯 Gerçek zamanlı olarak KNN modeliyle siber saldırı tahmini yapın.")
+st.markdown("🎯 Gerçek zamanlı olarak siber saldırı tahmini yapın.")
 
 with st.expander("ℹ️ Bu Uygulama Ne Yapar?"):
     st.write("""
