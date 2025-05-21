@@ -54,11 +54,11 @@ st.markdown(
 )
 
 st.title("🛡️ Siber Güvenlik Saldırısı Tahmin Aracı")
-st.markdown("🎯 Gerçek zamanlı olarak XGBoost modeliyle siber saldırı tahmini yapın.")
+st.markdown("🎯 Gerçek zamanlı olarak KNN modeliyle siber saldırı tahmini yapın.")
 
 with st.expander("ℹ️ Bu Uygulama Ne Yapar?"):
     st.write("""
-    Bu araç, ağ trafiği verilerine göre bir bağlantının siber saldırı olup olmadığını **XGBoost modeliyle tahmin eder**.
+    Bu araç, ağ trafiği verilerine göre bir bağlantının siber saldırı olup olmadığını **KNN modeliyle tahmin eder**.
     
     **Nasıl Kullanılır?**
     1. Aşağıdaki değerleri ayarlayın.
@@ -86,9 +86,9 @@ with st.expander("🧾 Özellik Detayları"):
     - **Yeniden Deneme Sayısı**
     """)
 
-# Modeli yükle
+# Sadece KNN modelini yükle
 try:
-    model = joblib.load("./cyber_model/xgboost_model.pkl")
+    model = joblib.load("./cyber_model/knn_model.pkl")
 except Exception as e:
     st.error(f"Model yüklenirken bir hata oluştu: {e}")
     st.stop()
@@ -116,7 +116,6 @@ with col2:
     feature14 = st.slider("TCP RST Flag Sayısı", 0, 10, 0)
     feature15 = st.slider("Yeniden Deneme Sayısı", 0, 10, 0)
 
-# Özellikleri birleştir
 features = np.array([
     feature1, feature2, feature3, feature4, feature5, feature6, feature7, feature8,
     feature9, feature10, feature11, feature12, feature13, feature14, feature15
@@ -135,20 +134,15 @@ if st.button("🔮 Tahmin Et"):
     try:
         prediction = model.predict(features)[0]
         prediction_text = attack_type_explanation.get(prediction, "Bilinmeyen saldırı türü")
-
-        if hasattr(model, "predict_proba"):
-            prob = model.predict_proba(features)[0]
-            st.success(f"📌 Model Tahmini: **{prediction_text}** (Kod: {prediction})")
-            st.info(f"📊 Güven Skoru: %{np.max(prob) * 100:.2f}")
-        else:
-            st.success(f"📌 Model Tahmini: **{prediction_text}** (Kod: {prediction})")
-            st.warning("⚠️ Bu model güven skoru (olasılık) sağlamıyor.")
+        st.success(f"📌 Model Tahmini: **{prediction_text}** (Kod: {prediction})")
+        st.warning("⚠️ KNN modeli güven skoru (olasılık) sağlamaz.")
     except Exception as e:
         st.error(f"Tahmin yapılırken bir hata oluştu: {e}")
 
 st.markdown("""
 ---
-🧠 Bu uygulama, XGBoost makine öğrenmesi modelini kullanarak canlı tahmin yapmanızı sağlar.  
+🧠 Bu uygulama, **KNN makine öğrenmesi modeliyle** canlı tahmin yapmanızı sağlar.  
 💡 Not: Tahminlerin doğruluğu modelin eğitim verisine bağlıdır.
 """)
+
 
