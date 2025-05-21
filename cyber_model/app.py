@@ -54,16 +54,15 @@ st.markdown(
 )
 
 st.title("🛡️ Siber Güvenlik Saldırısı Tahmin Aracı")
-st.markdown("🎯 Gerçek zamanlı olarak farklı modellerle siber saldırı tahmini yapın.")
+st.markdown("🎯 Gerçek zamanlı olarak XGBoost modeliyle siber saldırı tahmini yapın.")
 
 with st.expander("ℹ️ Bu Uygulama Ne Yapar?"):
     st.write("""
-    Bu araç, ağ trafiği verilerine göre bir bağlantının siber saldırı olup olmadığını **makine öğrenmesi modelleriyle tahmin eder**.
+    Bu araç, ağ trafiği verilerine göre bir bağlantının siber saldırı olup olmadığını **XGBoost modeliyle tahmin eder**.
     
     **Nasıl Kullanılır?**
-    1. Model seçin.
-    2. Aşağıdaki değerleri ayarlayın.
-    3. 'Tahmin Et' butonuna tıklayın.
+    1. Aşağıdaki değerleri ayarlayın.
+    2. 'Tahmin Et' butonuna tıklayın.
     
     Sonuç olarak sistem, trafiğin normal mi yoksa saldırı içerikli mi olduğunu gösterir.
     """)
@@ -87,19 +86,9 @@ with st.expander("🧾 Özellik Detayları"):
     - **Yeniden Deneme Sayısı**
     """)
 
-model_option = st.selectbox(
-    "🔍 Tahmin İçin Model Seç:",
-    ("XGBoost", "KNN", "Logistic Regression")
-)
-
-model_map = {
-    "XGBoost": "./cyber_model/xgb_model.pkl",
-    "KNN": "./cyber_model/knn_model.pkl",
-    "Logistic Regression": "./cyber_model/lr_model.pkl"
-}
-
+# Modeli yükle
 try:
-    model = joblib.load(model_map[model_option])
+    model = joblib.load("./cyber_model/xgb_model.pkl")
 except Exception as e:
     st.error(f"Model yüklenirken bir hata oluştu: {e}")
     st.stop()
@@ -159,6 +148,7 @@ if st.button("🔮 Tahmin Et"):
 
 st.markdown("""
 ---
-🧠 Bu uygulama, üç farklı makine öğrenmesi modelini karşılaştırmalı olarak kullanarak canlı tahmin yapmanızı sağlar.  
+🧠 Bu uygulama, XGBoost makine öğrenmesi modelini kullanarak canlı tahmin yapmanızı sağlar.  
 💡 Not: Tahminlerin doğruluğu modelin eğitim verisine bağlıdır.
 """)
+
