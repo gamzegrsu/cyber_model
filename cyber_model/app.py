@@ -58,7 +58,7 @@ st.markdown("🎯 Gerçek zamanlı olarak siber saldırı tahmini yapın.")
 
 with st.expander("ℹ️ Bu Uygulama Ne Yapar?"):
     st.write("""
-    Bu araç, ağ trafiği verilerine göre bir bağlantının siber saldırı olup olmadığını **KNN modeliyle tahmin eder**.
+    Bu araç, ağ trafiği verilerine göre bir bağlantının siber saldırı olup olmadığını Makine Öğrenimi modeliyle tahmin eder**.
 
     **Nasıl Kullanılır?**
     1. Aşağıdaki değerleri ayarlayın.
