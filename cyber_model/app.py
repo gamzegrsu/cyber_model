@@ -77,6 +77,17 @@ with st.expander("🧾 Özellik Detayları"):
     - **Bağlantı Süresi**: İki nokta arasındaki bağlantının süresi. (Milisaniye)
     - **Bayt Hızı**: Birim zamanda aktarılan veri miktarı.
     - **Kaynak Port**: Paketin gönderildiği port numarası.
+    - **Ortalama Paketler Arası Süre**: Paketlerin ortalama interarrival zamanı (ms).
+    - **Protokol Tipi**: TCP=1, UDP=2, ICMP=3 gibi.
+    - **Hedef Port**: Paketin hedef port numarası.
+    - **TCP SYN Flag Sayısı**: TCP SYN bayrağı sayısı.
+    - **TCP ACK Flag Sayısı**: TCP ACK bayrağı sayısı.
+    - **Kaynak IP Blacklist Durumu**: 0 (değil) veya 1 (blacklistte).
+    - **Aktif Bağlantı Sayısı**: Aynı IP ile aktif bağlantı sayısı.
+    - **Ortalama Paket Boyutu**: Byte cinsinden.
+    - **Uygulama Tipi**: HTTP=1, FTP=2 vb.
+    - **TCP RST Flag Sayısı**: TCP RST bayrağı sayısı.
+    - **Yeniden Deneme Sayısı**: Paket yeniden deneme sayısı.
     """)
 
 model_option = st.selectbox(
@@ -98,13 +109,24 @@ except Exception as e:
 
 st.subheader("📥 Girdi Verilerini Girin:")
 
-feature1 = st.slider("Paket Boyutu", 0, 1500, 500)
+feature1 = st.slider("Paket Boyutu (Byte)", 0, 1500, 500)
 feature2 = st.slider("Bağlantı Süresi (ms)", 0, 10000, 200)
 feature3 = st.slider("Bayt Hızı", 0.0, 1000.0, 300.0)
 feature4 = st.slider("Kaynak Port", 0, 65535, 80)
 
+# Gerçekçi ve anlamlı ek özellikler (11 adet)
 extra_features = np.array([
-    50, 0.5, 100, 0, 0, 0.1, 20, 1, 0, 0, 0.05
+    15,   # Ortalama paketler arası süre (ms)
+    1,    # Protokol tipi (TCP=1)
+    80,   # Hedef port
+    1,    # TCP SYN flag sayısı
+    1,    # TCP ACK flag sayısı
+    0,    # Kaynak IP blacklist durumu
+    5,    # Aktif bağlantı sayısı
+    500,  # Ortalama paket boyutu (byte)
+    1,    # Uygulama tipi (HTTP)
+    0,    # TCP RST flag sayısı
+    0     # Yeniden deneme sayısı
 ])
 
 features = np.concatenate((np.array([feature1, feature2, feature3, feature4]), extra_features))
